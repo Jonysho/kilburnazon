@@ -6,11 +6,14 @@ const EmployeeDirectory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({ department: "", jobTitle: "" });
 
-//   useEffect(() => {
-//     axios.get('http://localhost:5000/employees')  // Adjust for your backend endpoint
-//       .then(response => setEmployees(response.data))
-//       .catch(error => console.error("Error fetching employees:", error));
-//   }, []);
+  useEffect(() => {
+    axios.get('http://localhost:8000/api/employees')
+      .then(response => {
+        setEmployees(response.data);
+        console.log("Employees fetched successfully", response.data);
+      })
+      .catch(error => console.error("Error fetching employees:", error));
+  }, []);
 
   const filteredEmployees = employees.filter(employee => {
     return (
