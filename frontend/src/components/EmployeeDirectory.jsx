@@ -1,28 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getEmployees } from '../api/employeeApi';
+import { getDepartments } from '../api/departmentApi';
+import EmployeePopup from './EmployeePopup';
 
 const EmployeeDirectory = () => {
   const [employees, setEmployees] = useState([]);
+  const [departmentJobsMap, setdepartmentJobsMap] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({ department: "", jobTitle: "" });
+  const [filters, setFilters] = useState({ department: "", job_title: "", location: "", start_date: ""});
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/employees')
-      .then(response => {
-        setEmployees(response.data);
-        console.log("Employees fetched successfully", response.data);
-      })
-      .catch(error => console.error("Error fetching employees:", error));
+    getEmployees().then(data => setEmployees(data));
+    getDepartments().then(data => setdepartmentJobsMap(data));
   }, []);
 
-  const filteredEmployees = employees.filter(employee => {
-    return (
-      (employee.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (filters.department ? employee.department === filters.department : true) &&
-      (filters.jobTitle ? employee.jobTitle === filters.jobTitle : true)
-    );
-  });
+  useEffect(() => {
+    const filteredEmployees = employees.filter(employee => {
+      return (
+        (employee.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        (filters.department ? employee.department === filters.department : true) &&
+        (filters.job_title ? employee.job_title === filters.job_title : true)
+      );
+    });
+    setFilteredEmployees(filteredEmployees);
+  }, [searchQuery, filters, employees]);
+  
+  const resetDetails = () => {
+    setFilters({ department: "", job_title: "", location: "", start_date: "" });
+    setSearchQuery("");
+  };
 
+
+  const openDetails = (employee) => {
+    setSelectedEmployee(employee);
+  };
+
+  const closeDetails = () => {
+    setSelectedEmployee(null);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -36,41 +53,54 @@ const EmployeeDirectory = () => {
         />
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex items-center">
         <select 
           className="border p-2 rounded"
+          value={filters.department}
           onChange={(e) => setFilters({ ...filters, department: e.target.value })}
         >
           <option value="">Filter by Department</option>
-          <option value="HR">HR</option>
-          <option value="Engineering">Engineering</option>
-          <option value="Marketing">Marketing</option>
+          {Object.keys(departmentJobsMap).map((department, index)  => (
+            <option key={index} value={department}>
+              {department}
+            </option>
+          ))}
         </select>
 
         <select 
           className="border p-2 rounded ml-2"
-          onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
+          value={filters.job_title}
+          onChange={(e) => setFilters({ ...filters, job_title: e.target.value })}
         >
           <option value="">Filter by Job Title</option>
-          <option value="Manager">Manager</option>
-          <option value="Developer">Developer</option>
-          <option value="Designer">Designer</option>
+          {Object.values(departmentJobsMap).flat().map((job, index)  => (
+              <option key={index} value={job}>
+                {job}
+              </option>
+          ))}
         </select>
+
+        <button 
+          className="border p-2 rounded ml-2 bg-red-500 text-white"
+          onClick={() => resetDetails()}>
+          Reset Filters
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {filteredEmployees.map(employee => (
-          <div key={employee.id} className="bg-white shadow-lg rounded-lg p-4">
-            <img src={employee.photoUrl} alt={employee.name} className="w-24 h-24 rounded-full mb-4" />
+        {filteredEmployees.map((employee, index) => (
+          <div key={index} className="bg-white shadow-lg rounded-lg p-4">
+            <img src={employee.imageUrl || "images/profile.avif "}  alt={employee.name} className="w-24 h-24 rounded-full mb-4" />
             <h2 className="text-xl font-semibold">{employee.name}</h2>
-            <p className="text-gray-600">{employee.jobTitle}</p>
+            <p className="text-gray-600">{employee.job_title}</p>
             <p className="text-gray-600">{employee.department}</p>
-            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={() => openDetails(employee)}>
               View Details
             </button>
           </div>
         ))}
       </div>
+      {selectedEmployee ? <EmployeePopup employee={selectedEmployee} onClose={closeDetails} /> : null}
     </div>
   );
 };

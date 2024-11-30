@@ -1,18 +1,25 @@
 <?php
 require_once './db/config.php';
 
-$request = $_SERVER['REQUEST_URI'];
+$request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($request) {
-    case '/employees' && $method === 'GET':
-        require './controllers/employee.php';
-        getEmployees($conn);
+    case '/api/employees':
+        if ($method === 'GET') {
+            require './controllers/employees.php';
+            getEmployeesData($conn);
+        } elseif ($method === 'POST') {
+            require './controllers/employees.php';
+            addEmployee($conn);
+        }
         break;
 
-    case '/employees' && $method === 'POST':
-        require './controllers/employee.php';
-        addEmployee($conn);
+    case '/api/departments':
+        if ($method === 'GET') {
+            require './controllers/departments.php';
+            getDepartmentsAndJobs($conn);
+        }
         break;
 
     default:
