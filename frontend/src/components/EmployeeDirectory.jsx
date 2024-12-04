@@ -1,34 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { getEmployees } from '../api/employeeApi';
-import { getDepartments } from '../api/departmentApi';
+import { getDepartments, getLocations } from '../api/infoApi';
 import EmployeePopup from './EmployeePopup';
 
 const EmployeeDirectory = () => {
   const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [departmentJobsMap, setdepartmentJobsMap] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({ department: "", job_title: "", location: "", start_date: ""});
+  const [filters, setFilters] = useState({ department: "", job_title: "", location: "", start_date: "", end_date: "" });
   const [filteredEmployees, setFilteredEmployees] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [locations, setLocations] = useState({});
 
   useEffect(() => {
     getEmployees().then(data => setEmployees(data));
     getDepartments().then(data => setdepartmentJobsMap(data));
+    getLocations().then(data => (setLocations(data)));
   }, []);
 
-  useEffect(() => {
+  useEffect(() => {;
     const filteredEmployees = employees.filter(employee => {
       return (
         (employee.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
         (filters.department ? employee.department === filters.department : true) &&
-        (filters.job_title ? employee.job_title === filters.job_title : true)
+        (filters.job_title ? employee.job_title === filters.job_title : true) && 
+        (filters.location ? employee.office_name === filters.location : true) &&
+        (filters.start_date ? new Date(employee.hired_date) >= new Date(filters.start_date) : true) &&
+        (filters.end_date ? new Date(employee.hired_date) <= new Date(filters.end_date) : true)
       );
     });
     setFilteredEmployees(filteredEmployees);
   }, [searchQuery, filters, employees]);
   
   const resetDetails = () => {
-    setFilters({ department: "", job_title: "", location: "", start_date: "" });
+    setFilters({ department: "", job_title: "", location: "", start_date: "", end_date: "" });
     setSearchQuery("");
   };
 
@@ -43,7 +48,7 @@ const EmployeeDirectory = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="mb-4">
+      <div className="mb-4 flex items-center">
         <input 
           type="text"
           placeholder="Search employees..."
@@ -51,6 +56,9 @@ const EmployeeDirectory = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <div className="mx-6">
+          <p className="text-gray-700">Showing {filteredEmployees.length} employees</p>
+        </div>
       </div>
 
       <div className="mb-4 flex items-center">
@@ -60,7 +68,7 @@ const EmployeeDirectory = () => {
           onChange={(e) => setFilters({ ...filters, department: e.target.value })}
         >
           <option value="">Filter by Department</option>
-          {Object.keys(departmentJobsMap).map((department, index)  => (
+          {Object.keys(departmentJobsMap).sort().map((department, index)  => (
             <option key={index} value={department}>
               {department}
             </option>
@@ -73,13 +81,40 @@ const EmployeeDirectory = () => {
           onChange={(e) => setFilters({ ...filters, job_title: e.target.value })}
         >
           <option value="">Filter by Job Title</option>
-          {Object.values(departmentJobsMap).flat().map((job, index)  => (
+          {Object.values(departmentJobsMap).flat().sort().map((job, index)  => (
               <option key={index} value={job}>
                 {job}
               </option>
           ))}
         </select>
 
+        <select 
+          className="border p-2 rounded ml-2"
+          value={filters.location}
+          onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+        >
+          <option value="">Filter by Location</option>
+          {Object.keys(locations).map((location, index)  => (
+              <option key={index} value={locations[location]}>
+                {location.split(", ").pop()}
+              </option>
+          ))}
+        </select>
+
+        <input 
+          type="date"
+          className="border p-2 rounded ml-2"
+          value={filters.start_date}
+          onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
+        />
+
+        <input 
+          type="date"
+          className="border p-2 rounded ml-2"
+          value={filters.end_date}
+          onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
+        />
+        
         <button 
           className="border p-2 rounded ml-2 bg-red-500 text-white"
           onClick={() => resetDetails()}>

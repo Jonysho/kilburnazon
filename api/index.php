@@ -3,22 +3,48 @@ require_once './db/config.php';
 
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
+// $query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+// parse_str($query, $queryParams);
 
 switch ($request) {
     case '/api/employees':
+        require './controllers/employees.php';
         if ($method === 'GET') {
-            require './controllers/employees.php';
-            getEmployeesData($conn);
+            if (isset($_GET["id"])) {
+                getEmployeeById($conn, $_GET['id']);
+            } else {
+                getEmployees($conn);
+            }
         } elseif ($method === 'POST') {
-            require './controllers/employees.php';
             addEmployee($conn);
         }
         break;
 
-    case '/api/departments':
+    case '/api/info/departments':
         if ($method === 'GET') {
-            require './controllers/departments.php';
+            require './controllers/info.php';
             getDepartmentsAndJobs($conn);
+        }
+        break;
+
+    case '/api/info/locations':
+        if ($method === 'GET') {
+            require './controllers/info.php';
+            getLocations($conn);
+        }
+        break;
+
+    case '/api/info/jobs':
+        if ($method === 'GET') {
+            require './controllers/info.php';
+            getJobs($conn);
+        }
+        break;
+
+    case '/api/info/offices':
+        if ($method === 'GET') {
+            require './controllers/info.php';
+            getOffices($conn);
         }
         break;
 
