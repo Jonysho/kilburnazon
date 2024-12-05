@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { requestLeave } from '../api/employeeApi';
-import { data } from 'react-router-dom';
+import { requestLeave } from '../api/leaveApi';
 
-const Leave = ({ onSubmit }) => {
+const Leave = ({notifications, setNotifications}) => {
     const [employeeID, setEmployeeID] = useState('');
     const [leaveType, setLeaveType] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -28,6 +27,7 @@ const Leave = ({ onSubmit }) => {
           await requestLeave(employeeID, leaveType, startDate, endDate, reason)
           resetInfo();
           setSuccess('Leave request submitted successfully');
+          setNotifications(notifications + 1);
       } catch (error) {
         setError(error.message);
       }

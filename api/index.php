@@ -1,9 +1,13 @@
 <?php
 require_once './db/config.php';
 
+// Parse the request URL and method
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
+/**
+ * Handle requests related to employees.
+ */
 function handleEmployees($conn, $method) {
     require './controllers/employees.php';
     switch ($method) {
@@ -20,36 +24,49 @@ function handleEmployees($conn, $method) {
         case 'PUT':
             updateEmployee($conn);
             break;
-        // case 'DELETE':
-        //     deleteEmployee($conn);
-        //     break;
         default:
-            http_response_code(405);
-            echo json_encode(["message" => "Method not allowed"]);
+            sendErrorResponse(405, "Method not allowed");
             break;
     }
 }
 
+/**
+ * Handle employee promotions.
+ */
 function handleEmployeePromotion($conn, $method) {
     require './controllers/promotion.php';
     if ($method === 'POST') {
         promote($conn);
     } else {
-        http_response_code(405);
-        echo json_encode(["message" => "Method not allowed"]);
+        sendErrorResponse(405, "Method not allowed");
     }
 }
 
-function handleLeaveRequest($conn, $method) {
+/**
+ * Handle leave requests (approve, reject, or create requests).
+ */
+function handleLeaveRequest($conn, $method, $request) {
     require './controllers/leave.php';
     if ($method === 'POST') {
         requestLeave($conn);
+    } elseif ($method === 'GET') {
+        getRequests($conn);
+    } elseif ($method === 'PUT') {
+        if (strpos($request, '/approve') !== false) {
+            approveLeave($conn);
+        } elseif (strpos($request, '/reject') !== false) {
+            rejectLeave($conn);
+        } else {
+            sendErrorResponse(404, "Action not found");
+        }
     } else {
-        http_response_code(405);
-        echo json_encode(["message" => "Method not allowed"]);
+        sendErrorResponse(405, "Method not allowed");
     }
 }
 
+/**
+ * Handle general information endpoints (departments, locations, etc.).
+ */
 function handleInfo($conn, $method, $infoType) {
     if ($method === 'GET') {
         require './controllers/info.php';
@@ -67,41 +84,54 @@ function handleInfo($conn, $method, $infoType) {
                 getOffices($conn);
                 break;
             default:
-                http_response_code(404);
-                echo json_encode(["message" => "Info type not found"]);
+                sendErrorResponse(404, "Info type not found");
                 break;
         }
     } else {
-        http_response_code(405);
-        echo json_encode(["message" => "Method not allowed"]);
+        sendErrorResponse(405, "Method not allowed");
     }
 }
 
-switch ($request) {
-    case '/api/employees':
+/**
+ * Send a JSON error response with a status code and message.
+ */
+function sendErrorResponse($code, $message) {
+    http_response_code($code);
+    echo json_encode(["message" => $message]);
+}
+
+// Routing logic
+switch (true) {
+    case $request === '/api/employees':
         handleEmployees($conn, $method);
         break;
-    case '/api/employees/promote':
+
+    case $request === '/api/employees/promote':
         handleEmployeePromotion($conn, $method);
         break;
-    case '/api/employees/leave/request':
-        handleLeaveRequest($conn, $method);
+
+    case strpos($request, '/api/employees/leave/request') === 0:
+        handleLeaveRequest($conn, $method, $request);
         break;
-    case '/api/info/departments':
+
+    case $request === '/api/info/departments':
         handleInfo($conn, $method, 'departments');
         break;
-    case '/api/info/locations':
+
+    case $request === '/api/info/locations':
         handleInfo($conn, $method, 'locations');
         break;
-    case '/api/info/jobs':
+
+    case $request === '/api/info/jobs':
         handleInfo($conn, $method, 'jobs');
         break;
-    case '/api/info/offices':
+
+    case $request === '/api/info/offices':
         handleInfo($conn, $method, 'offices');
         break;
+
     default:
-        http_response_code(404);
-        echo json_encode(["message" => "Endpoint not found"]);
+        sendErrorResponse(404, "Endpoint not found");
         break;
 }
 ?>

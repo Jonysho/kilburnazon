@@ -100,18 +100,6 @@ const promoteEmployee = async (id, percentage) => {
     }
 }
 
-const requestLeave = async (employee_id, leave_type, start_date, end_date, reason ) => {
-    if (!employee_id) {throw new Error('Employee is required')}
-    if (!leave_type) {throw new Error('Leave type is required')}
-    if (!start_date) {throw new Error('Start date is required')}
-    if (!end_date) {throw new Error('End date is required')}
-    try {
-        const response = await axios.post(`${API_URL}/employees/leave/request`, { employee_id, leave_type, start_date, end_date, reason });
-        return response.data;
-    } catch (error) {
-        console.error('Error requesting leave: ', error);
-        throw new Error('Error requesting leave');
-    }
-}
 
-export { getEmployees, getEmployeeById, addEmployee, updateEmployee, promoteEmployee, requestLeave};
+
+export { getEmployees, getEmployeeById, addEmployee, updateEmployee, promoteEmployee};

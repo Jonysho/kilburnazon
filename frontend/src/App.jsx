@@ -9,6 +9,8 @@ import Leave from './pages/Leave';
 const App = () => {
     const [currentPage, setCurrentPage] = useState('home');
 
+    const [notifications, setNotifications] = useState(0);
+    
     const renderPage = () => {
         switch (currentPage) {
             case 'employee':
@@ -16,13 +18,13 @@ const App = () => {
             case 'management':
                 return <Management />;
             case 'dashboard':
-                return <Dashboard />;
+                return <Dashboard setNotifications={setNotifications}/>;
             case 'report':
                 return <Report />;
             case 'birthday':
                 return <Birthday />;
             case 'leave':
-                return <Leave />;
+                return <Leave notifications={notifications} setNotifications={setNotifications}/>;
             default:
                 return <EmployeeDirectory />;
         }
@@ -32,7 +34,10 @@ const App = () => {
         <div className="App flex min-h-screen h-screen w-full bg-gradient-to-r from-gray-900 via-black to-gray-800 bg-[length:200%_200%] animate-gradient-move">
         {/* <div className="App flex min-h-screen h-screen w-full bg-gradient-to-r from-gray-800 via-purple-900 to-black     bg-[length:200%_200%] animate-gradient-move"> */}
             <nav className="flex flex-col p-5 border-r border-gray-300 top-3 left-3 h-full">
-                <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('dashboard')}>Dashboard</button>
+                <button className="relative mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('dashboard')}>
+                    Dashboard
+                    {notifications > 0 ? <span className="absolute top-0 right-0 inline-flex items-center justify-center px-3 py-2 text-md font-bold leading-none text-red-1000 bg-red-600 rounded-full">{notifications}</span> : null}
+                </button>
                 <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('employee')}>Employee</button>
                 <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('management')}>Management</button>
                 <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('report')}>Report</button>
