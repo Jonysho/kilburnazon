@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getEmployees } from '../api/employeeApi';
 import { getDepartments, getLocations, getJobs} from '../api/infoApi';
-import EmployeePopup from './EmployeePopup';
+import EmployeePopup from '../components/EmployeePopup';
 
 const EmployeeDirectory = () => {
   const [employees, setEmployees] = useState([]);
@@ -12,7 +12,7 @@ const EmployeeDirectory = () => {
   const [filters, setFilters] = useState({ department: "", job: "", location: "", start_date: "", end_date: "" });
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [locations, setLocations] = useState({});
-
+     
   useEffect(() => {
     getEmployees().then(data => setEmployees(data));
     getDepartments().then(data => setDepartments(data));
@@ -21,7 +21,6 @@ const EmployeeDirectory = () => {
   }, []);
 
   useEffect(() => {;
-    console.log(employees);
     const filteredEmployees = employees.filter(employee => {
       return (
         (employee.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
@@ -124,7 +123,7 @@ const EmployeeDirectory = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12 mt-10">
         {filteredEmployees.map((employee, index) => (
           <div key={index} className="bg-white shadow-lg rounded-lg p-4">
             <img src={employee.imageUrl || "images/profile.avif "}  alt={employee.name} className="w-24 h-24 rounded-full mb-4" />

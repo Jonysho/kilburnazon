@@ -18,7 +18,10 @@ const EmployeePopup = ({ employee, onClose }) => {
         <button className="absolute top-4 right-4 text-gray-600" onClick={onClose}>
           &times;
         </button>
-        <h2 className="text-2xl font-semibold mb-4">{employee.name}</h2>
+        <div className='flex justify-between mb-4'>
+          <h2 className="text-2xl font-semibold">{employee.name}</h2>
+          <h2 className="text-2xl font-semibold mr-4">ID: {employee.employee_id}</h2>
+        </div>
         <p><strong>Job Title:</strong> {employee.job}</p>
         <p><strong>Department:</strong> {employee.department}</p>
         <p><strong>Email:</strong> {employee.email}</p>
@@ -28,6 +31,7 @@ const EmployeePopup = ({ employee, onClose }) => {
         {employee.distribution_centre_name ? <p><strong>Distribution Centre:</strong> {employee.distribution_centre_name}</p> : null}
         <p><strong>Home address:</strong> {employee.home_address}</p>
         <p><strong>Hired Date:</strong> {employee.hired_date}</p>
+        <p><strong>Leave Remaining:</strong> {employee.remaining_leave}</p>
       </div>
     </div>
   );

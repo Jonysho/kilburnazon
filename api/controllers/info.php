@@ -14,26 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-// function getDepartmentsAndJobs($conn) {
-//     header('Content-Type: application/json');
-//     // error_log("Fetching departments from the database");
-//     $sql = "SELECT d.name as department, d.department_id, jp.name as job, j.position_id FROM department as d RIGHT JOIN job_position as jp ON d.department_id = jp.department_id";
-//     $result = $conn->query($sql);
-
-//     $departmentJobsMap = [];
-//     foreach ($result as $department) {
-//         $deptName = $department['department'];
-//         $deptId = $department['department_id'];
-//         $jobName = $department['job'];
-//         $jobName = $department['job'];
-//         if (!isset($departmentJobsMap[$deptName])) {
-//             $departmentJobsMap[$deptName] = [];
-//         }
-//         $departmentJobsMap[$deptName][] = $jobName;
-//     }
-//     echo json_encode($departmentJobsMap);
-// }
-
 function getDepartments($conn) {
     header('Content-Type: application/json');
     // error_log("Fetching departments from the database");
