@@ -19,7 +19,7 @@ const EmployeePopup = ({ employee, onClose }) => {
           &times;
         </button>
         <h2 className="text-2xl font-semibold mb-4">{employee.name}</h2>
-        <p><strong>Job Title:</strong> {employee.job_title}</p>
+        <p><strong>Job Title:</strong> {employee.job}</p>
         <p><strong>Department:</strong> {employee.department}</p>
         <p><strong>Email:</strong> {employee.email}</p>
         <p><strong>Date of Birth:</strong> {employee.dob}</p>

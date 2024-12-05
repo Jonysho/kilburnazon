@@ -23,7 +23,7 @@ switch ($request) {
     case '/api/info/departments':
         if ($method === 'GET') {
             require './controllers/info.php';
-            getDepartmentsAndJobs($conn);
+            getDepartments($conn);
         }
         break;
 
