@@ -50,7 +50,13 @@ function handleLeaveRequest($conn, $method, $request) {
     if ($method === 'POST') {
         requestLeave($conn);
     } elseif ($method === 'GET') {
-        getRequests($conn);
+        if (strpos($request, '/request') !== false) {
+            getRequests($conn);
+        } else if (strpos($request, '/quarter') !== false){
+            getDataByQuarter($conn, $_GET['start'], $_GET['end']);
+        } else {
+            getDataByDepartment($conn, $_GET['start'], $_GET['end']);
+        }
     } elseif ($method === 'PUT') {
         if (strpos($request, '/approve') !== false) {
             approveLeave($conn);
@@ -110,7 +116,7 @@ switch (true) {
         handleEmployeePromotion($conn, $method);
         break;
 
-    case strpos($request, '/api/employees/leave/request') === 0:
+    case strpos($request, '/api/employees/leave') === 0:
         handleLeaveRequest($conn, $method, $request);
         break;
 

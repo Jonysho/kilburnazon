@@ -5,7 +5,6 @@ const API_URL = 'http://localhost:8000/api';
 const getEmployees = async () => {
     try {
         const response = await axios.get(`${API_URL}/employees`);
-        console.log(response);
         return response.data;
     } catch (error) {
         console.error('Error fetching employees: ', error);
@@ -60,7 +59,6 @@ const addEmployee = async (employee) => {
 const updateEmployee = async (employee) => {
     const { employee_id, name, job, email, salary, dob, hired_date, home_address, contract, nin } = employee;
 
-    console.log(employee);
     employee.name = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ').trim();
     if (!name) {throw new Error('Name is required')}
     if (!job) {throw new Error('Job title is required')}
