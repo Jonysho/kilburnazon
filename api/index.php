@@ -135,6 +135,11 @@ switch (true) {
     case $request === '/api/info/offices':
         handleInfo($conn, $method, 'offices');
         break;
+    
+    case $request === '/api/birthday':
+        require './controllers/birthday.php';
+        getEmployees($conn);
+        break;
 
     default:
         sendErrorResponse(404, "Endpoint not found");
