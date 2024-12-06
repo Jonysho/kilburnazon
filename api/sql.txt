@@ -1,0 +1,41 @@
+DELIMITER //
+
+CREATE TRIGGER after_employee_delete
+AFTER DELETE ON employee
+FOR EACH ROW
+BEGIN
+    INSERT INTO employee_audit_log (
+        employee_id, 
+        name, 
+        department_name, 
+        job_title, 
+        email,
+        dob, 
+        home_address, 
+        hired_date, 
+        contract, 
+        nin, 
+        termination_date, 
+        termination_time, 
+        deleted_by, 
+        record_expiry_date
+    ) 
+    VALUES (
+        OLD.employee_id, 
+        OLD.name, 
+        (SELECT name FROM department WHERE department_id = OLD.department_id), 
+        (SELECT name FROM job_position WHERE position_id = OLD.position_id),
+        OLD.email, 
+        OLD.dob, 
+        OLD.home_address, 
+        OLD.hired_date, 
+        OLD.contract, 
+        OLD.nin, 
+        CURDATE(), 
+        CURTIME(), 
+        1,
+        DATE_ADD(CURDATE(), INTERVAL 3 YEAR)
+    );
+END //
+
+DELIMITER ;

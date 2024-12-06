@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Report from './pages/Report';
 import Birthday from './pages/Birthday';
 import Leave from './pages/Leave';
+import Audit from './pages/Audit';
 
 const App = () => {
     const [currentPage, setCurrentPage] = useState('home');
@@ -25,6 +26,8 @@ const App = () => {
                 return <Birthday />;
             case 'leave':
                 return <Leave notifications={notifications} setNotifications={setNotifications}/>;
+            case 'audit':
+                return <Audit />;
             default:
                 return <EmployeeDirectory />;
         }
@@ -43,6 +46,7 @@ const App = () => {
                 <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('report')}>Report</button>
                 <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('birthday')}>Birthday</button>
                 <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('leave')}>Leave</button>
+                <button className="mb-8 p-8 border-2 border-white rounded text-white bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg hover:shadow-xl" onClick={() => setCurrentPage('audit')}>Audit</button>
             </nav>
             <div className="flex-1 overflow-y-auto p-10 overflow-x-hidden">
                 {renderPage()}

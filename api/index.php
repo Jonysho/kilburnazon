@@ -139,6 +139,10 @@ switch (true) {
     case $request === '/api/birthday':
         require './controllers/birthday.php';
         getEmployees($conn);
+
+    case $request === '/api/audit':
+        require './controllers/audit.php';
+        getAuditLogs($conn);
         break;
 
     default:
