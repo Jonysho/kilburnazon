@@ -17,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 function getPromotions($conn) {
-    $sql = "SELECT * FROM promotions";
+    $sql = "SELECT e.name, p.promotion_date, p.previous_salary, p.new_salary, p.promotion_percentage, p.remarks
+            FROM promotions p LEFT JOIN Employee e ON p.employee_id = e.employee_id ORDER BY promotion_date DESC";
     $result = $conn->query($sql);
 
     $promotions = [];
@@ -68,7 +69,6 @@ function promote($conn) {
         $update_stmt->execute();
         $update_stmt->close();
         
-        // Insert promotion record
         // Insert promotion record
         $insert_query = "INSERT INTO promotions (employee_id, promotion_percentage, previous_salary, promotion_date) VALUES (?, ?, ?, CURDATE())";
         $insert_stmt = $conn->prepare($insert_query);

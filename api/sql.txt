@@ -23,8 +23,13 @@ BEGIN
     VALUES (
         OLD.employee_id, 
         OLD.name, 
-        (SELECT name FROM department WHERE department_id = OLD.department_id), 
-        (SELECT name FROM job_position WHERE position_id = OLD.position_id),
+        -- Get department name via job_position and department tables
+        (SELECT d.name 
+         FROM job_position jp 
+         JOIN department d ON jp.department_id = d.department_id 
+         WHERE jp.position_id = OLD.position_id),
+        -- Get job title from job_position
+        (SELECT jp.name FROM job_position jp WHERE jp.position_id = OLD.position_id),
         OLD.email, 
         OLD.dob, 
         OLD.home_address, 
@@ -33,9 +38,107 @@ BEGIN
         OLD.nin, 
         CURDATE(), 
         CURTIME(), 
-        1,
+        1, -- Placeholder for deleted_by (adjust if dynamic user ID is available)
         DATE_ADD(CURDATE(), INTERVAL 3 YEAR)
     );
 END //
 
 DELIMITER ;
+
+-------------------------
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS GeneratePayrollReport$$
+
+CREATE PROCEDURE GeneratePayrollReport(
+    IN start_date DATE,
+    IN end_date DATE
+)
+BEGIN
+    -- Main report with all required details for each employee
+    SELECT 
+        e.employee_id,
+        e.name AS employee_name,
+        d.name AS department_name,
+        jp.name AS job_title,
+        e.salary AS base_salary,
+        SUM(p.bonuses) AS total_bonuses,
+        SUM(p.incentives) AS total_incentives,
+        SUM(p.other_allowances) AS total_other_allowances,
+        SUM(p.tax_deductions) AS total_tax_deductions,
+        SUM(p.insurance_deductions) AS total_insurance_deductions,
+        SUM(p.retirement_contributions) AS total_retirement_contributions,
+        -- Calculate net pay (sum of all components for the period)
+        SUM(p.salary + p.bonuses + p.incentives + p.other_allowances - 
+            p.tax_deductions - p.insurance_deductions - p.retirement_contributions) AS net_pay
+    FROM 
+        payrolls p
+    JOIN 
+        employee e ON p.employee_id = e.employee_id
+    LEFT JOIN 
+        job_position jp ON e.position_id = jp.position_id
+    LEFT JOIN 
+        department d ON jp.department_id = d.department_id
+    WHERE 
+        p.payroll_date BETWEEN start_date AND end_date
+    GROUP BY 
+        e.employee_id, e.name, d.name, jp.name, e.salary
+    ORDER BY 
+        d.name, jp.name, e.name;
+
+END$$
+
+DELIMITER ;
+
+-------------------------
+
+CREATE TABLE payrolls (
+    payroll_id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT,
+    payroll_date DATE,
+    salary DECIMAL(15, 2),
+    bonuses DECIMAL(15, 2) DEFAULT 0.00,
+    incentives DECIMAL(15, 2) DEFAULT 0.00,
+    other_allowances DECIMAL(15, 2) DEFAULT 0.00,
+    tax_deductions DECIMAL(15, 2) DEFAULT 0.00,
+    insurance_deductions DECIMAL(15, 2) DEFAULT 0.00,
+    retirement_contributions DECIMAL(15, 2) DEFAULT 0.00,
+    net_pay DECIMAL(15, 2),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    UNIQUE (employee_id, payroll_date)  -- Ensures only one record per employee per month
+);
+
+INSERT INTO payrolls (employee_id, payroll_date, salary, bonuses, incentives, other_allowances, tax_deductions, insurance_deductions, retirement_contributions, net_pay)
+SELECT
+    e.employee_id,
+    '2018-01-25' AS payroll_date,
+    e.salary / 12 AS monthly_salary,
+    e.bonuses / 12 AS monthly_bonuses,
+    e.incentives / 12 AS monthly_incentives,
+    e.other_allowances / 12 AS monthly_allowances,
+    e.tax_deductions / 12 AS monthly_tax,
+    e.insurance_deductions / 12 AS monthly_insurance,
+    e.retirement_contributions / 12 AS monthly_retirement,
+    (
+        e.salary / 12 + e.bonuses / 12 + e.incentives / 12 + e.other_allowances / 12
+        - e.tax_deductions / 12 - e.insurance_deductions / 12 - e.retirement_contributions / 12
+    ) AS net_pay
+FROM EMPLOYEE e;
+
+------------------------
+
+ALTER TABLE payrolls 
+ADD CONSTRAINT payrolls_ibfk_1 FOREIGN KEY (employee_id) 
+REFERENCES employee (employee_id) 
+ON DELETE SET NULL;
+
+------
+SHOW VARIABLES LIKE 'event_scheduler';
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT delete_old_audit_logs
+ON SCHEDULE EVERY 1 DAY
+DO
+    DELETE FROM employee_audit_log
+    WHERE record_expiry_date < CURDATE() - INTERVAL 3 YEAR;

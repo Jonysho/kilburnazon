@@ -87,17 +87,4 @@ const updateEmployee = async (employee) => {
     }
 }
 
-const promoteEmployee = async (id, percentage) => {
-    if (!id) {throw new Error('Employee is required')}
-    if (!percentage) {throw new Error('Promotion percentage is required')}
-    try {
-        const response = await axios.post(`${API_URL}/employees/promote`, { id, percentage });
-        return response.data;
-    } catch (error) {
-        throw new Error('Error promoting employee');
-    }
-}
-
-
-
-export { getEmployees, getEmployeeById, addEmployee, updateEmployee, promoteEmployee};
+export { getEmployees, getEmployeeById, addEmployee, updateEmployee};

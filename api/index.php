@@ -31,18 +31,6 @@ function handleEmployees($conn, $method) {
 }
 
 /**
- * Handle employee promotions.
- */
-function handleEmployeePromotion($conn, $method) {
-    require './controllers/promotion.php';
-    if ($method === 'POST') {
-        promote($conn);
-    } else {
-        sendErrorResponse(405, "Method not allowed");
-    }
-}
-
-/**
  * Handle leave requests (approve, reject, or create requests).
  */
 function handleLeaveRequest($conn, $method, $request) {
@@ -113,7 +101,13 @@ switch (true) {
         break;
 
     case $request === '/api/employees/promote':
-        handleEmployeePromotion($conn, $method);
+        require './controllers/promotion.php';
+        promote($conn);
+        break;
+    
+    case $request === '/api/employees/promotions':
+        require './controllers/promotion.php';
+        getPromotions($conn);
         break;
 
     case strpos($request, '/api/employees/leave') === 0:
@@ -138,11 +132,17 @@ switch (true) {
     
     case $request === '/api/birthday':
         require './controllers/birthday.php';
-        getEmployees($conn);
+        getBirthdayEmployees($conn);
+        break;
 
     case $request === '/api/audit':
         require './controllers/audit.php';
         getAuditLogs($conn);
+        break;
+
+    case $request === '/api/report':
+        require './controllers/payroll.php';
+        generateReport($conn, $_GET['start'], $_GET['end']);
         break;
 
     default:

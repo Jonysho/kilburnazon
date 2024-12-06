@@ -34,19 +34,20 @@ const LeaveRequests = ({fetchData}) => {
     }
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-6">
             <div className='flex items-center mb-4 justify-between'>
-                <h2 className="text-2xl mr-4">Leave Requests</h2>
+                 <div className="text-center">
+                    <h1 className="text-4xl font-bold mb-2">Leave Requests</h1>
+                </div>
                 <div className='flex items-center'>
-                <select name="type" value={status} onChange={(e) => setStatus(e.target.value)} className='text-black border border-gray-300 ounded mr-4'>
+                <select name="type" value={status} onChange={(e) => setStatus(e.target.value)} className='text-black border border-gray-300 rounded mr-4 p-2'>
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
                 </select>
-                <p className="text-gray-700">Showing {filterRequests().length} requests</p>
+                <p className="text-gray-500">Showing {filterRequests().length} requests</p>
                 </div>
             </div>
-                {status === 'Pending' && (
                 <>
                     <h3 className="text-xl mb-4">{status} Requests</h3>
                     <ul>
@@ -72,7 +73,6 @@ const LeaveRequests = ({fetchData}) => {
                         ))}
                     </ul>
                 </>
-                )}
         </div>
     );
 };

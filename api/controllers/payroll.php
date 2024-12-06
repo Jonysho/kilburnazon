@@ -16,14 +16,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-function getAuditLogs($conn) {
-    $sql = "SELECT * FROM employee_audit_log";
-    $result = $conn->query($sql);
-
-    $logs = [];
+function generateReport($conn, $start, $end) {
+    $sql = "CALL GeneratePayrollReport(?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $start, $end);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+    $data = array();
     while ($row = $result->fetch_assoc()) {
-        $logs[] = $row;
+        $data[] = $row;
     }
-
-    echo json_encode($logs);
+    echo json_encode($data);
 }
+

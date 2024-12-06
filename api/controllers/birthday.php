@@ -3,7 +3,7 @@
 header("Access-Control-Allow-Origin: *");
 
 // Allow specific HTTP methods
-header("Access-Control-Allow-Methods: GET, PUT, POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
 
 // Allow specific headers
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -16,14 +16,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-function getEmployees($conn) {
-    $sql = "SELECT name, dob FROM employee WHERE MONTH(dob) = MONTH(CURRENT_DATE())";
+function getBirthdayEmployees($conn) {
+    // SQL query to get employees with birthdays in the current month
+    $sql = "SELECT name, dob FROM employee WHERE MONTH(dob) = MONTH(CURRENT_DATE()) ORDER BY DAY(dob)";
     $result = $conn->query($sql);
 
-    $employees = [];
-    while ($row = $result->fetch_assoc()) {
-        $employees[] = $row;
-    }
+    // Initialize an array to store employee data
+    $birthdayEmployees = [];
 
-    echo json_encode($employees);
+    if ($result && $result->num_rows > 0) {
+        // Fetch rows from the result set
+        while ($row = $result->fetch_assoc()) {
+            // Append each row to the array
+            $birthdayEmployees[] = $row;
+        }
+    }
+    // Return the JSON-encoded result
+    echo json_encode($birthdayEmployees);
 }

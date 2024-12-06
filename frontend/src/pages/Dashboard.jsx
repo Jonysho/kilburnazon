@@ -30,10 +30,10 @@ const Dashboard = ({setNotifications}) => {
 
     return (
         <div className="container mx-auto p-4 text-white">
-            <div className='bg-slate-900 rounded mb-10'>
+            <div className='bg-gray-800 rounded mb-10'>
                 <AbsenceReport customRange={customRange} setCustomRange={setCustomRange} quarterlyData={quarterlyData} departmentData={departmentData} period={period} setPeriod={setPeriod}/>
             </div>
-            <div className='bg-slate-900 rounded'>
+            <div className='bg-gray-800 rounded'>
                 <LeaveRequests fetchData={fetchData}/>
             </div>
         </div>

@@ -59,7 +59,7 @@ const EmployeeDirectory = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         <div className="mx-6">
-          <p className="text-gray-700">Showing {filteredEmployees.length} employees</p>
+          <p className="text-gray-500">Showing {filteredEmployees.length} employees</p>
         </div>
       </div>
 
@@ -78,7 +78,7 @@ const EmployeeDirectory = () => {
         </select>
 
         <select 
-          className="border p-2 rounded ml-2"
+          className="border p-2 rounded ml-4"
           value={filters.job}
           onChange={(e) => setFilters({ ...filters, job: e.target.value })}>
           <option value="">Filter by Job Title</option>
@@ -90,7 +90,7 @@ const EmployeeDirectory = () => {
         </select>
 
         <select 
-          className="border p-2 rounded ml-2"
+          className="border p-2 rounded ml-4"
           value={filters.location}
           onChange={(e) => setFilters({ ...filters, location: e.target.value })}
         >
@@ -104,20 +104,20 @@ const EmployeeDirectory = () => {
 
         <input 
           type="date"
-          className="border p-2 rounded ml-2"
+          className="border p-2 rounded ml-4"
           value={filters.start_date}
           onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
         />
 
         <input 
           type="date"
-          className="border p-2 rounded ml-2"
+          className="border p-2 rounded ml-4"
           value={filters.end_date}
           onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
         />
         
         <button 
-          className="border p-2 rounded ml-2 bg-red-500 text-white"
+          className="border p-2 rounded ml-4 bg-red-500 text-white"
           onClick={() => resetDetails()}>
           Reset Filters
         </button>
@@ -130,7 +130,7 @@ const EmployeeDirectory = () => {
             <h2 className="text-xl font-semibold">{employee.name}</h2>
             <p className="text-gray-600">{employee.job}</p>
             <p className="text-gray-600">{employee.department}</p>
-            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={() => openDetails(employee)}>
+            <button className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded" onClick={() => openDetails(employee)}>
               View Details
             </button>
           </div>

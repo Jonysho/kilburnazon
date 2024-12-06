@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api';
 
-const getEmployees = async () => {
+const getBirthdayEmployees = async () => {
     try {
         const response = await axios.get(`${API_URL}/birthday`);
         return response.data;
@@ -12,4 +12,4 @@ const getEmployees = async () => {
     }
 };
 
-export { getEmployees };
+export { getBirthdayEmployees };

@@ -30,6 +30,7 @@ export const EmployeeForm = ({employee, setEmployee, handleSubmit, error, succes
               <div>
               <label className='mr-4 text-white'>Job Title</label>
               <select className ="border border-gray-300 p-2 rounded" value={employee.job || ''} onChange={(e) => setEmployee({ ...employee, job: e.target.value })}>
+                <option value="">Select Position</option>
                 {jobs.map(job => (
                   <option key={job.id} value={job.id}>
                     {job.name}

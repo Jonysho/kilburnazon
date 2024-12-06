@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { getJobs, getOffices } from '../api/infoApi';
-import { addEmployee, getEmployeeById, promoteEmployee, updateEmployee } from '../api/employeeApi';
+import { addEmployee, getEmployeeById, updateEmployee } from '../api/employeeApi';
 import { EmployeeForm } from '../components/EmployeeForm';
 import { PromoteForm } from '../components/PromoteForm';
+import { getPromotions, promoteEmployee } from '../api/promotionApi';
 
 const Management = () => {
   const [newEmployee, setNewEmployee] = useState({ name: '', job: '', office: '', email: '', salary: '', dob: '', home_address: '', contract: '', hired_date: '', nin: ''});
@@ -14,11 +14,13 @@ const Management = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [view, setView] = useState('Add'); // State to manage which form is displayed
-  const [percentage, setPercentage] = useState(0);
+  const [percentage, setPercentage] = useState(0.0);
+  const [promotions, setPromotions] = useState([]);
 
   useEffect(() => {
     getJobs().then(data => setJobs(data));
     getOffices().then(data => setOffices(data));
+    getPromotions().then(data => setPromotions(data));
   }, [])
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const Management = () => {
     setNewEmployee({ name: '', job: '', office: '', email: '', salary: '', dob: '', home_address: '', contract: '', hired_date: '', nin: ''});
     setOldEmployee({ id: '', name: '', job: '', office: '', email: '', salary: '', dob: '', home_address: '', contract: '', hired_date: '', nin: ''});
     setSearchId('');
-    setPercentage(0);
+    setPercentage(0.0);
   }
 
   const updateView = (view) => {
@@ -74,6 +76,7 @@ const Management = () => {
         await promoteEmployee(oldEmployee.employee_id, percentage)
         // resetInfo();
         setSuccess('Employee promoted successfully');
+        getPromotions().then(data => setPromotions(data));
     } catch (error) {
       setError(error.message);
     }
@@ -100,6 +103,9 @@ const Management = () => {
 
   return (
     <div className="container mx-auto py-8 px-40">
+      <div className="mb-12 text-center text-white">
+          <h1 className="text-6xl font-bold">Management</h1>
+      </div>
       <div className="mb-8 flex items-center justify-between gap-12">
         <div>
         <button
@@ -130,7 +136,7 @@ const Management = () => {
       )}
 
       {view === 'Promote' && (
-        <PromoteForm employee={oldEmployee} handlePromote={handlePromote} error={error} success={success} view={view} percentage={percentage} setPercentage={setPercentage}/>
+        <PromoteForm employee={oldEmployee} handlePromote={handlePromote} error={error} success={success} view={view} percentage={percentage} setPercentage={setPercentage} promotions={promotions}/>
       )}
 
     </div>

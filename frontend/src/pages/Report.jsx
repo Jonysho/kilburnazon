@@ -1,108 +1,105 @@
 import React, { useState, useEffect } from 'react';
+import Payroll from '../components/Payroll';
+import { generateReport } from '../api/reportApi';
 
 const Report = () => {
     const [reportData, setReportData] = useState([]);
-    const [filters, setFilters] = useState({
-        department: '',
-        role: '',
-        salaryRange: [0, 1000000], // Salary range filter
-        timePeriod: 'monthly', // Default: Monthly
-    });
-
-    const [loading, setLoading] = useState(false);
+    const [customRange, setCustomRange] = useState({ start: '1900-01-01', end: '2100-12-31' });
+    const [period, setPeriod] = useState('all');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     // Handle form submission (for generating report)
-    const handleSubmit = async (e) => {
+    const handlePreview = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setIsLoading(true);
+        setReportData([]);
+        var data;  
+        try {
+            data = await generateReport(customRange.start, customRange.end);
+            setSuccess("Report generated successfully");
+        } catch (error) {
+            console.error('Error generating report: ', error);
+            setError("Error generating report");
+        }
+        setTimeout(() => {
+            setReportData(data);
+            setIsLoading(false);
+        }, 2000);
+    };
 
-        // Fetch the report data from the backend (API)
-        const response = await fetch(`/api/report?timePeriod=${filters.timePeriod}&department=${filters.department}&role=${filters.role}&salaryMin=${filters.salaryRange[0]}&salaryMax=${filters.salaryRange[1]}`);
-        const data = await response.json();
-        setReportData(data);
-        setLoading(false);
+    const handlePeriodChange = (e) => {
+        setPeriod(e.target.value);
+        setCustomRange({start: '1900-01-01', end: '2100-12-31' });
+    };
+
+    const handleMonthSelect = (e) => {
+        const month = e.target.value;
+        setCustomRange({ start: `2024-${month}-01`, end: `2024-${month}-31` });
+    }
+
+    const handleYearSelect = (e) => {
+        const year = e.target.value;
+        setCustomRange({ start: `${year}-01-01`, end: `${year}-12-31` });
+    }
+
+    const handleDateChange = (e) => {
+        const { name, value } = e.target;
+        setCustomRange({ ...customRange, [name]: value });
     };
 
     return (
-        <div className="container mx-auto p-4 text-white">
-            <div className="mb-4">
-                <h2>Payroll Report</h2>
+        <div className="container mx-auto rounded p-6">
+            <div className="mb-0 text-center text-white">
+                <h1 className="text-6xl font-bold">Reports</h1>
+            </div>
+            <div className='p-4 text-center text-white flex justify-between items-center mb-8'>
+                    <div className="flex items-center justify-center">
+                        <select value={period} onChange={handlePeriodChange} className="mr-4 p-2 border rounded text-black cursor-pointer hover:bor0">
+                            <option value="all">All-Time</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="monthly">Monthly (2024)</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                        {period === "yearly" && (
+                            <div>
+                                {['2020', '2021', '2022', '2023', '2024'].map((year, index) => (
+                                    <label key={index} className="mr-4">
+                                        <input type="radio" name="year" value={year} onChange={handleYearSelect} className="mr-2"/>
+                                        {year}
+                                    </label>
+                                ))}
+                            </div>
+                        )}
+                        {period === "monthly" && (
+                            <div>
+                                {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, index) => (
+                                    <label key={index} className="mr-6">
+                                        <input type="radio" name="month" value={String(index + 1).padStart(2, '0')} onChange={handleMonthSelect} className="mr-1"/>
+                                        {month}
+                                    </label>
+                                ))}
+                            </div>
+                        )}
+                        {period === "custom" && (
+                            <div>
+                                <label className="mr-2">Start Date:</label>
+                                <input type="date" name="start" onChange={handleDateChange} className="mr-4 p-1 border rounded text-black" />
+                                <label className="mr-2">End Date:</label>
+                                <input type="date" name="end" onChange={handleDateChange} className="p-1 border rounded text-black" />
+                            </div>
+                        )}
+                    </div>
+                <button className='p-2 bg-green-500 hover:bg-green-600 rounded' type="submit" onClick={handlePreview}>Preview Report</button>
             </div>
 
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label>Time Period</label>
-                    <select
-                        value={filters.timePeriod} onChange={(e) => setFilters({ ...filters, timePeriod: e.target.value })} className='text-black'>
-                        <option value="monthly">Monthly</option>
-                        <option value="quarterly">Quarterly</option>
-                        <option value="annually">Annually</option>
-                    </select>
-                </div>
-
-                <div className="mb-4">
-                    <label>Department</label>
-                    <select value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })} className='text-black'>
-                        <option value="">All</option>
-                        {/* Add other department options dynamically */}
-                    </select>
-                </div>
-
-                <div className="mb-4">
-                    <label>Role</label>
-                     <select value={filters.role}onChange={(e) => setFilters({ ...filters, role: e.target.value })} className='text-black'>
-                        <option value="">All</option>
-                        {/* Add other role options dynamically */}
-                    </select>
-                </div>
-
-                <div className="mb-4">
-                    <label>Salary Range</label>
-                     <input type ="number"value={filters.salaryRange[0]}onChange={(e) => setFilters({ ...filters, salaryRange: [e.target.value, filters.salaryRange[1]] })} className='text-black'/>
-                    -
-                     <input type ="number"value={filters.salaryRange[1]}onChange={(e) => setFilters({ ...filters, salaryRange: [filters.salaryRange[0], e.target.value] })} className='text-black'/>
-                </div>
-
-                <button type="submit">Generate Report</button>
-            </form>
-
-            {loading && <p>Loading...</p>}
-
-            {reportData.length > 0 && (
-                <div className="report-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Department</th>
-                                <th>Job Title</th>
-                                <th>Base Salary</th>
-                                <th>Bonuses</th>
-                                <th>Deductions</th>
-                                <th>Net Pay</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {reportData.map((employee) => (
-                                <tr key={employee.id}>
-                                    <td>{employee.name}</td>
-                                    <td>{employee.department}</td>
-                                    <td>{employee.job_title}</td>
-                                    <td>{employee.base_salary}</td>
-                                    <td>{employee.bonuses}</td>
-                                    <td>{employee.deductions}</td>
-                                    <td>{employee.net_pay}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    <div className="summary">
-                        <p>Total Payroll: {reportData.reduce((acc, employee) => acc + employee.net_pay, 0)}</p>
-                        <p>Average Salary: {reportData.reduce((acc, employee) => acc + employee.base_salary, 0) / reportData.length}</p>
-                    </div>
-                </div>
-            )}
+            {isLoading && <p>Loading...</p>}
+            {error && <p>{error}</p>}
+            {success && <p>{success}</p>}
+            <div className='bg-gray-50 rounded text-white p-6'>
+                <Payroll data={reportData} isLoading={isLoading} />
+            </div>
         </div>
     );
 };
